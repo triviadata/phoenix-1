@@ -17,37 +17,19 @@
  */
 package org.apache.phoenix.execute;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_MUTATION_BATCH_SIZE;
-import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_MUTATION_BYTES;
-import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_MUTATION_COMMIT_TIME;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import co.cask.tephra.Transaction;
+import co.cask.tephra.*;
 import co.cask.tephra.Transaction.VisibilityLevel;
-import co.cask.tephra.TransactionAware;
-import co.cask.tephra.TransactionCodec;
-import co.cask.tephra.TransactionConflictException;
-import co.cask.tephra.TransactionContext;
-import co.cask.tephra.TransactionFailureException;
-import co.cask.tephra.TransactionSystemClient;
 import co.cask.tephra.hbase11.TransactionAwareHTable;
 import co.cask.tephra.visibility.FenceWait;
 import co.cask.tephra.visibility.VisibilityFence;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Delete;
@@ -77,38 +59,21 @@ import org.apache.phoenix.monitoring.MutationMetricQueue.MutationMetric;
 import org.apache.phoenix.monitoring.MutationMetricQueue.NoOpMutationMetricsQueue;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.query.QueryConstants;
-import org.apache.phoenix.schema.IllegalDataException;
-import org.apache.phoenix.schema.MetaDataClient;
-import org.apache.phoenix.schema.PColumn;
-import org.apache.phoenix.schema.PIndexState;
-import org.apache.phoenix.schema.PMetaData;
-import org.apache.phoenix.schema.PRow;
-import org.apache.phoenix.schema.PTable;
+import org.apache.phoenix.schema.*;
 import org.apache.phoenix.schema.PTable.IndexType;
-import org.apache.phoenix.schema.PTableRef;
-import org.apache.phoenix.schema.PTableType;
-import org.apache.phoenix.schema.RowKeySchema;
-import org.apache.phoenix.schema.TableNotFoundException;
-import org.apache.phoenix.schema.TableRef;
 import org.apache.phoenix.schema.ValueSchema.Field;
 import org.apache.phoenix.schema.types.PLong;
 import org.apache.phoenix.trace.util.Tracing;
-import org.apache.phoenix.util.ByteUtil;
-import org.apache.phoenix.util.IndexUtil;
-import org.apache.phoenix.util.LogUtil;
-import org.apache.phoenix.util.PhoenixRuntime;
-import org.apache.phoenix.util.SQLCloseable;
-import org.apache.phoenix.util.SQLCloseables;
-import org.apache.phoenix.util.ServerUtil;
-import org.apache.phoenix.util.TransactionUtil;
+import org.apache.phoenix.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.phoenix.monitoring.GlobalClientMetrics.*;
 
 /**
  * 
@@ -557,7 +522,7 @@ public class MutationState implements SQLCloseable {
         final Iterator<PTable> indexes = // Only maintain tables with immutable rows through this client-side mechanism
                 (table.isImmutableRows() || includeMutableIndexes) ? 
                         IndexMaintainer.nonDisabledIndexIterator(table.getIndexes().iterator()) : 
-                        Iterators.<PTable>emptyIterator();
+                        Collections.<PTable>emptyIterator();
         final List<Mutation> mutationList = Lists.newArrayListWithExpectedSize(values.size());
         final List<Mutation> mutationsPertainingToIndex = indexes.hasNext() ? Lists.<Mutation>newArrayListWithExpectedSize(values.size()) : null;
         generateMutations(tableRef, timestamp, values, mutationList, mutationsPertainingToIndex);
@@ -672,7 +637,7 @@ public class MutationState implements SQLCloseable {
     public Iterator<Pair<byte[],List<Mutation>>> toMutations(final boolean includeMutableIndexes, final Long tableTimestamp) {
         final Iterator<Map.Entry<TableRef, Map<ImmutableBytesPtr,RowMutationState>>> iterator = this.mutations.entrySet().iterator();
         if (!iterator.hasNext()) {
-            return Iterators.emptyIterator();
+            return Collections.emptyIterator();
         }
         Long scn = connection.getSCN();
         final long timestamp = (tableTimestamp!=null && tableTimestamp!=QueryConstants.UNSET_TIMESTAMP) ? tableTimestamp : (scn == null ? HConstants.LATEST_TIMESTAMP : scn);

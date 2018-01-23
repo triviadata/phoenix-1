@@ -17,35 +17,13 @@
  */
 package org.apache.phoenix.compile;
 
-import static java.util.Collections.singletonList;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.phoenix.expression.AndExpression;
-import org.apache.phoenix.expression.BaseExpression;
+import org.apache.phoenix.expression.*;
 import org.apache.phoenix.expression.BaseExpression.ExpressionComparabilityWrapper;
-import org.apache.phoenix.expression.BaseTerminalExpression;
-import org.apache.phoenix.expression.CoerceExpression;
-import org.apache.phoenix.expression.ComparisonExpression;
-import org.apache.phoenix.expression.Determinism;
-import org.apache.phoenix.expression.Expression;
-import org.apache.phoenix.expression.InListExpression;
-import org.apache.phoenix.expression.IsNullExpression;
-import org.apache.phoenix.expression.LikeExpression;
-import org.apache.phoenix.expression.LiteralExpression;
-import org.apache.phoenix.expression.OrExpression;
-import org.apache.phoenix.expression.RowKeyColumnExpression;
-import org.apache.phoenix.expression.RowValueConstructorExpression;
 import org.apache.phoenix.expression.function.FunctionExpression.OrderPreserving;
 import org.apache.phoenix.expression.function.ScalarFunction;
 import org.apache.phoenix.expression.visitor.ExpressionVisitor;
@@ -55,12 +33,7 @@ import org.apache.phoenix.parse.HintNode.Hint;
 import org.apache.phoenix.parse.LikeParseNode.LikeType;
 import org.apache.phoenix.query.KeyRange;
 import org.apache.phoenix.query.QueryConstants;
-import org.apache.phoenix.schema.PColumn;
-import org.apache.phoenix.schema.PName;
-import org.apache.phoenix.schema.PTable;
-import org.apache.phoenix.schema.RowKeySchema;
-import org.apache.phoenix.schema.SaltingUtil;
-import org.apache.phoenix.schema.SortOrder;
+import org.apache.phoenix.schema.*;
 import org.apache.phoenix.schema.ValueSchema.Field;
 import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.schema.types.PChar;
@@ -71,10 +44,10 @@ import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.MetaDataUtil;
 import org.apache.phoenix.util.ScanUtil;
 import org.apache.phoenix.util.SchemaUtil;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import static java.util.Collections.singletonList;
 
 
 /**
@@ -449,7 +422,7 @@ public class WhereOptimizer {
         private static final KeySlots EMPTY_KEY_SLOTS = new KeySlots() {
             @Override
             public Iterator<KeySlot> iterator() {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
 
             @Override
@@ -880,7 +853,7 @@ public class WhereOptimizer {
         public Iterator<Expression> visitEnter(ComparisonExpression node) {
             Expression rhs = node.getChildren().get(1);
             if (!rhs.isStateless() || node.getFilterOp() == CompareOp.NOT_EQUAL) {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
             return Iterators.singletonIterator(node.getChildren().get(0));
         }
@@ -910,7 +883,7 @@ public class WhereOptimizer {
         public Iterator<Expression> visitEnter(ScalarFunction node) {
             int index = node.getKeyFormationTraversalIndex();
             if (index < 0) {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
             return Iterators.singletonIterator(node.getChildren().get(index));
         }
@@ -928,7 +901,7 @@ public class WhereOptimizer {
             // TODO: can we optimize something that starts with '_' like this: foo LIKE '_a%' ?
             if (node.getLikeType() == LikeType.CASE_INSENSITIVE || // TODO: remove this when we optimize ILIKE
                 ! (node.getChildren().get(1) instanceof LiteralExpression) || node.startsWithWildcard()) {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
 
             return Iterators.singletonIterator(node.getChildren().get(0));

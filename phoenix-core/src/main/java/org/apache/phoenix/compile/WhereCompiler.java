@@ -28,38 +28,16 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
-import org.apache.phoenix.expression.AndExpression;
-import org.apache.phoenix.expression.Determinism;
-import org.apache.phoenix.expression.Expression;
-import org.apache.phoenix.expression.KeyValueColumnExpression;
-import org.apache.phoenix.expression.LiteralExpression;
+import org.apache.phoenix.expression.*;
 import org.apache.phoenix.expression.visitor.KeyValueExpressionVisitor;
-import org.apache.phoenix.filter.MultiCFCQKeyValueComparisonFilter;
-import org.apache.phoenix.filter.MultiCQKeyValueComparisonFilter;
-import org.apache.phoenix.filter.RowKeyComparisonFilter;
-import org.apache.phoenix.filter.SingleCFCQKeyValueComparisonFilter;
-import org.apache.phoenix.filter.SingleCQKeyValueComparisonFilter;
-import org.apache.phoenix.parse.ColumnParseNode;
-import org.apache.phoenix.parse.FilterableStatement;
-import org.apache.phoenix.parse.ParseNode;
-import org.apache.phoenix.parse.ParseNodeFactory;
-import org.apache.phoenix.parse.SelectStatement;
-import org.apache.phoenix.parse.StatelessTraverseAllParseNodeVisitor;
-import org.apache.phoenix.parse.SubqueryParseNode;
-import org.apache.phoenix.schema.AmbiguousColumnException;
-import org.apache.phoenix.schema.ColumnNotFoundException;
-import org.apache.phoenix.schema.ColumnRef;
-import org.apache.phoenix.schema.PTable;
+import org.apache.phoenix.filter.*;
+import org.apache.phoenix.parse.*;
+import org.apache.phoenix.schema.*;
 import org.apache.phoenix.schema.PTable.IndexType;
-import org.apache.phoenix.schema.PTableType;
-import org.apache.phoenix.schema.TableRef;
-import org.apache.phoenix.schema.TypeMismatchException;
 import org.apache.phoenix.schema.types.PBoolean;
 import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.ScanUtil;
 import org.apache.phoenix.util.SchemaUtil;
-
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -246,7 +224,7 @@ public class WhereCompiler {
                 public Iterator<Expression> defaultIterator(Expression node) {
                     // Stop traversal once we've found multiple KeyValue columns
                     if (counter.getCount() == Counter.Count.MULTIPLE) {
-                        return Iterators.emptyIterator();
+                        return Collections.emptyIterator();
                     }
                     return super.defaultIterator(node);
                 }

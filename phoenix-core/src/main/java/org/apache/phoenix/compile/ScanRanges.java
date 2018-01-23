@@ -559,7 +559,7 @@ public class ScanRanges {
     }
     
     public Iterator<KeyRange> getPointLookupKeyIterator() {
-        return isPointLookup ? ranges.get(0).iterator() : Iterators.<KeyRange>emptyIterator();
+        return isPointLookup ? ranges.get(0).iterator() : Collections.<KeyRange>emptyIterator();
     }
 
     public int getBoundPkColumnCount() {

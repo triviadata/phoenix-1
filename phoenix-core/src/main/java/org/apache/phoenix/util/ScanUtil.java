@@ -17,19 +17,9 @@
  */
 package org.apache.phoenix.util;
 
-import static org.apache.phoenix.compile.OrderByCompiler.OrderBy.FWD_ROW_KEY_ORDER_BY;
-import static org.apache.phoenix.compile.OrderByCompiler.OrderBy.REV_ROW_KEY_ORDER_BY;
-import static org.apache.phoenix.coprocessor.BaseScannerRegionObserver.CUSTOM_ANNOTATIONS;
-
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -63,9 +53,11 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.ValueSchema.Field;
 import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PVarbinary;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import static org.apache.phoenix.compile.OrderByCompiler.OrderBy.FWD_ROW_KEY_ORDER_BY;
+import static org.apache.phoenix.compile.OrderByCompiler.OrderBy.REV_ROW_KEY_ORDER_BY;
+import static org.apache.phoenix.coprocessor.BaseScannerRegionObserver.CUSTOM_ANNOTATIONS;
 
 /**
  * 
@@ -730,7 +722,7 @@ public class ScanUtil {
         Iterator<Filter> filterIterator;
         Filter topLevelFilter = scan.getFilter();
         if (topLevelFilter == null) {
-            filterIterator = Iterators.emptyIterator();
+            filterIterator = Collections.emptyIterator();
         } else if (topLevelFilter instanceof FilterList) {
             filterIterator = ((FilterList) topLevelFilter).getFilters().iterator();
         } else {

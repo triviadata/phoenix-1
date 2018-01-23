@@ -21,14 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -38,12 +31,7 @@ import org.apache.phoenix.compile.GroupByCompiler.GroupBy;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
-import org.apache.phoenix.expression.BaseTerminalExpression;
-import org.apache.phoenix.expression.CoerceExpression;
-import org.apache.phoenix.expression.Expression;
-import org.apache.phoenix.expression.KeyValueColumnExpression;
-import org.apache.phoenix.expression.LiteralExpression;
-import org.apache.phoenix.expression.ProjectedColumnExpression;
+import org.apache.phoenix.expression.*;
 import org.apache.phoenix.expression.aggregator.ClientAggregators;
 import org.apache.phoenix.expression.aggregator.ServerAggregators;
 import org.apache.phoenix.expression.function.ArrayIndexFunction;
@@ -53,46 +41,17 @@ import org.apache.phoenix.expression.visitor.ProjectedColumnExpressionVisitor;
 import org.apache.phoenix.expression.visitor.ReplaceArrayFunctionExpressionVisitor;
 import org.apache.phoenix.expression.visitor.SingleAggregateFunctionVisitor;
 import org.apache.phoenix.jdbc.PhoenixConnection;
-import org.apache.phoenix.parse.AliasedNode;
-import org.apache.phoenix.parse.BindParseNode;
-import org.apache.phoenix.parse.ColumnParseNode;
-import org.apache.phoenix.parse.FamilyWildcardParseNode;
-import org.apache.phoenix.parse.FunctionParseNode;
-import org.apache.phoenix.parse.ParseNode;
-import org.apache.phoenix.parse.SelectStatement;
-import org.apache.phoenix.parse.SequenceValueParseNode;
-import org.apache.phoenix.parse.TableName;
-import org.apache.phoenix.parse.TableWildcardParseNode;
-import org.apache.phoenix.parse.WildcardParseNode;
+import org.apache.phoenix.parse.*;
 import org.apache.phoenix.query.QueryConstants;
-import org.apache.phoenix.schema.AmbiguousColumnException;
-import org.apache.phoenix.schema.ArgumentTypeMismatchException;
-import org.apache.phoenix.schema.ColumnFamilyNotFoundException;
-import org.apache.phoenix.schema.ColumnNotFoundException;
-import org.apache.phoenix.schema.ColumnRef;
-import org.apache.phoenix.schema.KeyValueSchema;
+import org.apache.phoenix.schema.*;
 import org.apache.phoenix.schema.KeyValueSchema.KeyValueSchemaBuilder;
-import org.apache.phoenix.schema.LocalIndexDataColumnRef;
-import org.apache.phoenix.schema.PColumn;
-import org.apache.phoenix.schema.PColumnFamily;
-import org.apache.phoenix.schema.PDatum;
-import org.apache.phoenix.schema.PName;
-import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTable.IndexType;
-import org.apache.phoenix.schema.PTableKey;
-import org.apache.phoenix.schema.PTableType;
-import org.apache.phoenix.schema.RowKeySchema;
-import org.apache.phoenix.schema.TableNotFoundException;
-import org.apache.phoenix.schema.TableRef;
-import org.apache.phoenix.schema.ValueBitSet;
 import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.IndexUtil;
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.SizedUtil;
-
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -631,7 +590,7 @@ public class ProjectionCompiler {
                     @Override
                     public Iterator<Expression> visitEnter(SingleAggregateFunction function) {
                         aggFuncSet.add(function);
-                        return Iterators.emptyIterator();
+                        return Collections.emptyIterator();
                     }
                 });
             }
